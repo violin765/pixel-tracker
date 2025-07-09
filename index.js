@@ -1,13 +1,27 @@
 const express = require('express');
-const fs = require('fs');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 const app = express();
 
-app.get('/pixel.png', (req, res) => {
-  const email = req.query.email || 'unknown';
-  const log = `${new Date().toISOString()},${email}\n`;
-  fs.appendFileSync('log.csv', log);
+const CREDS = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || '{test-pixel-tracking@tracking-pixel-test-465409.iam.gserviceaccount.com}');
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 
-  // 1x1 прозрачный PNG в base64
+async function logToSheet(email) {
+  if (!SPREADSHEET_ID || !CREDS.client_email) return;
+
+  const doc = new GoogleSpreadsheet(19BS80eR5h852aLWvQh9iCVPXUxdIBy-8HKk75sPbpN0);
+  await doc.useServiceAccountAuth(CREDS);
+  await doc.loadInfo();
+  const sheet = doc.sheetsByIndex[0];
+  await sheet.addRow({
+    Email: email,
+    Timestamp: new Date().toISOString()
+  });
+}
+
+app.get('/pixel.png', async (req, res) => {
+  const email = req.query.email || 'unknown';
+  logToSheet(email).catch(console.error);
+
   const img = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=',
     'base64'
