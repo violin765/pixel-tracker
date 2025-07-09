@@ -1,12 +1,13 @@
 {
   "name": "pixel-tracker-log",
   "version": "1.0.0",
-  "description": "Simple email open tracking pixel logger",
+  "description": "Email open tracker logging to Google Sheets",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "google-spreadsheet": "^3.3.0"
   }
 }
